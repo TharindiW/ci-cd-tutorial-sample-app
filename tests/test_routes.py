@@ -33,10 +33,17 @@ class BasicTests(unittest.TestCase):
         self.assertEqual(response.mimetype, 'application/json')
         body = json.loads(response.data)
         self.assertEqual(body['status'], 'ok')
+        # Extended: check new fields added in our update
+        self.assertIn('message', body)
+        self.assertIn('version', body)
+        self.assertEqual(body['message'], 'Welcome to the Daily Menu API!')
 
     def test_menu_empty(self):
         response = self.app.get('/menu', follow_redirects=True)
         self.assertEqual(response.status_code, 404)
+        body = json.loads(response.data)
+        # Extended: check available flag is False when no menu
+        self.assertFalse(body['available'])
 
     def test_menu_item(self):
         test_name = "test"
@@ -49,6 +56,8 @@ class BasicTests(unittest.TestCase):
         body = json.loads(response.data)
         self.assertTrue('today_special' in body)
         self.assertEqual(body['today_special'], test_name)
+        # Extended: check available flag is True when menu exists
+        self.assertTrue(body['available'])
 
 if __name__ == "__main__":
     unittest.main()
